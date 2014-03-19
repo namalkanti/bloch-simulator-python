@@ -510,6 +510,9 @@ free(e2);
 
 }
 
+b1_parameters process_b1_field(){
+}
+
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 

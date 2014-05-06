@@ -3,6 +3,14 @@
 
 #include "bloch.c"
 
+//Declarations for argument processing helper functions.
+b1_parameters process_b1_field(Py_complex b1, int ntime);
+gradient_parameters process_gradients();
+time_paremters process_time_points();
+position_parameters position_points();
+mode_parameters process_mode_information();
+magnetization_parameters process_magnetization();
+
 //Docstrings
 static char module_docstring[] = "Hargreaves Bloch Equation simulator implemented as a C extension."
 
@@ -12,16 +20,19 @@ static PyObject* bloch(PyObject *self, PyObject *args){
 
     double t1, t2;
     int mode;
-    PyObject *b1, *gr, *tp, *df, *dp, mx, my, mz;
+    PyObject *gr, *tp, *df, *dp, mx, my, mz;
+    Py_complex b1_input;
 
-    if (!PyArg_ParseTuple(args, "000dd00i000", &b1, &gr, &tp, &t1, &t2, 
+    if (!PyArg_ParseTuple(args, "D00dd00i000", &b1_input, &gr, &tp, &t1, &t2, 
                 &df, &dp, &mode, &mx, &my, &mz)){
         return NULL;
     }
+
+    int ntime;
     
     ntime =;
 
-    b1_parameters b1 = process_b1_field();
+    b1_parameters b1 = process_b1_field(b1_input);
 
     gradient_parameters gradients = process_gradients();
 
@@ -56,3 +67,13 @@ PyMODINIT_FUNC init_bloch(void){
     }
     import_array();
 }
+
+//Function takes in and returns b1 parameters ready for bloch sim.
+//If complex, split up; if real, allocate an imaginary part.
+b1_parameters process_b1_field(Py_complex b1){
+    b1_parameters parameters = malloc(sizeof(b1_parameters));
+    parameters.blr = b1.real;
+    parameters.bli = b1.imag; 
+    return parameters;
+}
+

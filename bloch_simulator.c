@@ -3,77 +3,91 @@
 
 #include "bloch.c"
 
-//Declarations for argument processing helper functions.
-b1_parameters process_b1_field(Py_complex b1, int ntime);
-gradient_parameters process_gradients();
-time_paremters process_time_points();
-position_parameters position_points();
-mode_parameters process_mode_information();
-magnetization_parameters process_magnetization();
-
 //Docstrings
-static char module_docstring[] = "Hargreaves Bloch Equation simulator implemented as a C extension."
+static char module_docstring[] = "Hargreaves Bloch Equation simulator implemented as a C extension for python.";
 
-static char bloch_docstring[] = "Bloch equation simulator."
+static char bloch_docstring[] = "Bloch equation simulator.";
 
 static PyObject* bloch(PyObject *self, PyObject *args){
 
+    //Arguement declarations
     double t1, t2;
-    int mode;
-    PyObject *gr, *tp, *df, *dp, mx, my, mz;
-    Py_complex b1_input;
+    int nf, mode, n_pos;
+    PyObject *py_b1_real, *py_b1_imag, *py_grx, *py_gry, *py_grz, *py_tp, *py_df, *py_dx, *py_dy, *py_dz;
+    PyObject *py_mx, *py_my, *py_mz;
 
-    if (!PyArg_ParseTuple(args, "D00dd00i000", &b1_input, &gr, &tp, &t1, &t2, 
-                &df, &dp, &mode, &mx, &my, &mz)){
+    //Bloch sim arugments declarations
+    PyObject *b1_real_arr, *b1_imag_arr, *grx_arr, *gry_arr, *grz_arr, *tp_arr, *df_arr, *dx_arr, *dy_arr, *dz_arr, *mx_arr, *my_arr, *mz_arr;
+    int ntime;
+    double *b1_real, *b1_imag, *grx, *gry, *grz, *tp, *df, *dx, *dy, *dz, *mx, *my, *mz;
+
+    if (!PyArg_ParseTuple(args, "OOOOOOiddOiOOOiiOOO", &py_b1_real, &py_b1_imag, &py_grx, &py_gry, &py_grz, &py_tp, &ntime, &t1, &t2, 
+                &py_df, &nf, &py_dx, &py_dy, &py_dz, &n_pos, &mode, &py_mx, &py_my, &py_mz)){
         return NULL;
     }
 
-    int ntime;
-    
-    ntime =;
+    b1_real_arr = PyArray_FROM_OTF(py_b1_real, NPY_DOUBLE, NPY_IN_ARRAY);
+    b1_imag_arr = PyArray_FROM_OTF(py_b1_imag, NPY_DOUBLE, NPY_IN_ARRAY);
+    grx_arr = PyArray_FROM_OTF(py_grx, NPY_DOUBLE, NPY_IN_ARRAY);
+    gry_arr = PyArray_FROM_OTF(py_gry, NPY_DOUBLE, NPY_IN_ARRAY);
+    grz_arr = PyArray_FROM_OTF(py_grz, NPY_DOUBLE, NPY_IN_ARRAY);
+    tp_arr = PyArray_FROM_OTF(py_tp, NPY_DOUBLE, NPY_IN_ARRAY);
+    df_arr = PyArray_FROM_OTF(py_df, NPY_DOUBLE, NPY_IN_ARRAY);
+    dx_arr = PyArray_FROM_OTF(py_dx, NPY_DOUBLE, NPY_IN_ARRAY);
+    dy_arr = PyArray_FROM_OTF(py_dy, NPY_DOUBLE, NPY_IN_ARRAY);
+    dz_arr = PyArray_FROM_OTF(py_dz, NPY_DOUBLE, NPY_IN_ARRAY);
+    mx_arr = PyArray_FROM_OTF(py_mx, NPY_DOUBLE, NPY_INOUT_ARRAY);
+    my_arr = PyArray_FROM_OTF(py_my, NPY_DOUBLE, NPY_INOUT_ARRAY);
+    mz_arr = PyArray_FROM_OTF(py_mz, NPY_DOUBLE, NPY_INOUT_ARRAY);
 
-    b1_parameters b1 = process_b1_field(b1_input);
+    b1_real = (double *) PyArray_DATA(b1_real_arr);
+    b1_imag = (double *) PyArray_DATA(b1_imag_arr);
+    grx = (double *) PyArray_DATA(grx_arr);
+    gry = (double *) PyArray_DATA(gry_arr);
+    grz = (double *) PyArray_DATA(grz_arr);
+    tp = (double *) PyArray_DATA(tp_arr);
+    df = (double *) PyArray_DATA(df_arr);
+    dx = (double *) PyArray_DATA(dx_arr);
+    dy = (double *) PyArray_DATA(dy_arr);
+    dz = (double *) PyArray_DATA(dz_arr);
+    mx = (double *) PyArray_DATA(mx_arr);
+    my = (double *) PyArray_DATA(my_arr);
+    mz = (double *) PyArray_DATA(mz_arr);
 
-    gradient_parameters gradients = process_gradients();
+    blochsimfz(b1_real, b1_imag, grx, gry, grz, tp, ntime, t1, t2, df, nf, dx, dy, dz, n_pos, mx, my, mz, mode);
 
-    time_parameters time_points = process_time_points();
+    Py_DECREF(b1_real_arr);
+    Py_DECREF(b1_imag_arr);
+    Py_DECREF(grx_arr);
+    Py_DECREF(gry_arr);
+    Py_DECREF(grz_arr);
+    Py_DECREF(tp_arr);
+    Py_DECREF(df_arr);
+    Py_DECREF(dx_arr);
+    Py_DECREF(dy_arr);
+    Py_DECREF(dz_arr);
+    Py_DECREF(mx_arr);
+    Py_DECREF(my_arr);
+    Py_DECREF(mz_arr);
 
-    t1 = ;
-    t2 = ;
-
-    df = ;
-    nf = ;
-
-    position_parameters position_points = process_position_points();
-
-    mode_parameters mode = process_mode_information();
-
-    magnetization_parameters magnetization = process_magnetization();
-
-    blochsimfz(b1.blr, b1.bli, gradients.gx, gradients.gy, gradients.gz, time_points.tp,
-            ntime, t1, t2, df, nf, position_points.dx, position_points.dy, position_points.dz,
-            magnetization.mx, magnetization.my, magnetization.mz, mode.md);
+    return Py_BuildValue("");
 }
 
 static PyMethodDef module_methods[] = {
-    {"bloch", bloch, METH_VARARGS, bloch_docstring},
+    {"bloch_c", bloch, METH_VARARGS, bloch_docstring},
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC init_bloch(void){
-    PyObject* m = PyInitModule("bloch_simulator", modules_methods, module_docstring);
-    if (NULL == m){
-        return;
-    }
-    import_array();
-}
+static struct PyModuleDef bloch_module = {
+    PyModuleDef_HEAD_INIT, 
+    "bloch_simulator", 
+    module_docstring,
+    -1,
+    module_methods
+};
 
-//Function takes in and returns b1 parameters ready for bloch sim.
-//If complex, split up; if real, allocate an imaginary part.
-b1_parameters process_b1_field(Py_complex b1){
-    b1_parameters parameters = malloc(sizeof(b1_parameters));
-    parameters.blr = b1.real;
-    parameters.bli = b1.imag; 
-    return parameters;
+PyMODINIT_FUNC PyInit_bloch_simulator(void){
+    import_array();
+    return PyModule_Create(&bloch_module);
 }
 

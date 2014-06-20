@@ -5,7 +5,7 @@ import scipy as sp
 
 import scipy.io as sio
 
-from minTimeGradientArea import minTimeGradientArea
+from bloch.minTimeGradientArea import minTimeGradientArea
 
 class GradientAreaTest(unittest.TestCase):
 
@@ -13,7 +13,7 @@ class GradientAreaTest(unittest.TestCase):
         """
         Tests waveforms against matlab code results.
         """
-        expected_gy = sio.loadmat("test_data/gradient/gy_sample.mat")["gy"].ravel()
+        expected_gy = sio.loadmat("bloch/test_data/gradient/gy_sample.mat")["gy"].ravel()
 
         Np = 32
         fov = 7

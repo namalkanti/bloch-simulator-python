@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 
-from minTimeGradientArea import minTimeGradientArea
+from bloch.minTimeGradientArea import minTimeGradientArea
 
 class GradientCalculator():
     """

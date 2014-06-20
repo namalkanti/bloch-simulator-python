@@ -4,7 +4,7 @@ import scipy as sp
 
 import scipy.io as sio
 
-from pulse_seq_design import genReadoutGradient, genPEGradient
+from bloch.pulse_seq_design import genReadoutGradient, genPEGradient
 
 g_max = 4
 s_max = 15000
@@ -16,8 +16,8 @@ class PulseSeqDesignTests(unittest.TestCase):
         """
         Compares readout generation to matlab results.
         """
-        expected_gx = sio.loadmat("test_data/pulse/gx.mat")["gro"].ravel()
-        expected_rowin = sio.loadmat("test_data/pulse/rowin.mat")["rowin"].ravel()
+        expected_gx = sio.loadmat("bloch/test_data/pulse/gx.mat")["gro"].ravel()
+        expected_rowin = sio.loadmat("bloch/test_data/pulse/rowin.mat")["rowin"].ravel()
 
         Nf = 64
         Fov_r  = 14
@@ -31,8 +31,8 @@ class PulseSeqDesignTests(unittest.TestCase):
         """
         Compares phase generation to matlab results.
         """
-        expected_gpe = sio.loadmat("test_data/pulse/gpe.mat")["gpe"].ravel()
-        expected_petable = sio.loadmat("test_data/pulse/petable.mat")["petable"].ravel()
+        expected_gpe = sio.loadmat("bloch/test_data/pulse/gpe.mat")["gpe"].ravel()
+        expected_petable = sio.loadmat("bloch/test_data/pulse/petable.mat")["petable"].ravel()
 
         Np = 32
         Fov_p = 7

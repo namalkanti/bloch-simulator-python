@@ -3,11 +3,11 @@ import unittest
 import numpy as np
 import scipy.io as sio
 
-from bloch import bloch
-from pulse_seq_design import genReadoutGradient
-from pulse_seq_design import genPEGradient
+from bloch.bloch import bloch
+from bloch.pulse_seq_design import genReadoutGradient
+from bloch.pulse_seq_design import genPEGradient
 
-TEST_DIR = "test_data/{0}/{1}"
+TEST_DIR = "bloch/test_data/{0}/{1}"
 
 class BlochTest(unittest.TestCase):
     """

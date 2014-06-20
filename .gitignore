@@ -4,3 +4,4 @@
 build
 matlab
 *.pyc
+*.swp

@@ -3,8 +3,8 @@ import scipy as sp
 
 from bloch_simulator import bloch_c
 
-from bloch_preprocessing import process_gradient_argument, process_time_points, process_off_resonance_arguments
-from bloch_preprocessing import process_positions, process_magnetization
+from bloch_processing import process_gradient_argument, process_time_points, process_off_resonance_arguments
+from bloch_processing import process_positions, process_magnetization, reshape_matrices
 
 def bloch(b1, gr, tp, t1, t2, df, dp, mode, mx=None, my=None, mz=None):
     """
@@ -46,7 +46,12 @@ def bloch(b1, gr, tp, t1, t2, df, dp, mode, mx=None, my=None, mz=None):
     dx, dy, dz, n_pos = process_positions(dp)
     pos_size = 1
     if isinstance(dp, np.ndarray):
-        pos_size = dp.size
+        pos_size = dp.shape[0]
     mx, my, mz = process_magnetization(mx, my, mz, b1.size, nf*pos_size, mode)
+    if 2 == mode:
+        ntout = b1.size
+    else:
+        ntout = 1
     bloch_c(b1.real, b1.imag, grx, gry, grz, tp, b1.size, t1, t2, df, nf, dx, dy, dz, n_pos, mode, mx, my, mz)
+    reshape_matrices(mx, my, mz, ntout, n_pos, nf)
     return mx, my, mz

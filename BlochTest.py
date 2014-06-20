@@ -4,6 +4,8 @@ import numpy as np
 import scipy.io as sio
 
 from bloch import bloch
+from pulse_seq_design import genReadoutGradient
+from pulse_seq_design import genPEGradient
 
 TEST_DIR = "test_data/{0}/{1}"
 
@@ -62,6 +64,52 @@ class BlochTest(unittest.TestCase):
         self.assertTrue(np.allclose(mx_a, mx));
         self.assertTrue(np.allclose(my_b, my));
         self.assertTrue(np.allclose(mz_c, mz));
+
+    def test_hw5_bloch_sim_first_part(self):
+        matlab = sio.loadmat(TEST_DIR.format("hw5", "hw5_img"))
+
+        dp = matlab["dp"]
+        mx_0 = matlab["mx"].ravel()
+        my_0 = matlab["my"].ravel()
+        mz_0 = matlab["mz"].ravel()
+
+        expected_mx1 = sio.loadmat(TEST_DIR.format("hw5", "mxa.mat"))["mx1"].ravel()
+        expected_my1 = sio.loadmat(TEST_DIR.format("hw5", "mya.mat"))["my1"].ravel()
+        expected_mz1 = sio.loadmat(TEST_DIR.format("hw5", "mza.mat"))["mz1"].ravel()
+
+        expected_mx2 = np.transpose(sio.loadmat(TEST_DIR.format("hw5", "mxb.mat"))["mx1"])
+        expected_my2= np.transpose(sio.loadmat(TEST_DIR.format("hw5", "myb.mat"))["my1"])
+        expected_mz2= np.transpose(sio.loadmat(TEST_DIR.format("hw5", "mzb.mat"))["mz1"])
+
+        Nf = 64
+        Np = 32
+        Nrf = 92
+        Fov_r = 14
+        Fov_p = 7
+        g_max = 4
+        s_max = 15000
+        dt = 4e-6
+        bwpp = 1862.4
+        gamma = 4257
+        flip = 90
+
+        gx, rowin = genReadoutGradient(Nf, Fov_r, bwpp, g_max, s_max, dt)
+        gpe, petable = genPEGradient(Np, Fov_p, g_max, s_max, dt)
+        rf_90 = np.ones(Nrf) * (flip/360) / (Nrf * dt * gamma)
+        gy = np.zeros(gx.size)
+        gy[:gpe.size] = gpe
+
+        g = np.asarray([gx, gy * -petable[0]])
+        mx1, my1, mz1 = bloch(rf_90, rf_90 * 0, dt, 100, 100, 0, dp, 0, mx_0, my_0, mz_0)
+        mx2, my2, mz2 = bloch(gx * 0, g, dt, 100, 100, 0, dp, 2, mx1, my1, mz1)
+
+        self.assertTrue(np.allclose(expected_mx1, mx1))
+        self.assertTrue(np.allclose(expected_my1, my1))
+        self.assertTrue(np.allclose(expected_mz1, mz1))
+
+        self.assertTrue(np.allclose(expected_mx2, mx2))
+        self.assertTrue(np.allclose(expected_my2, my2))
+        self.assertTrue(np.allclose(expected_mz2, mz2))
 
 if __name__ == "__main__":
     unittest.main()

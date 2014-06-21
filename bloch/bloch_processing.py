@@ -105,9 +105,14 @@ def reshape_matrices(mx, my, mz, ntime, n_pos, nf):
     else:
         if ntime > 1:
             shape = ((n_pos * nf), ntime)
+            if  1 == (n_pos * nf):
+                shape = (ntime, )
         else:
             shape = (nf, n_pos)
+            if 1 == nf:
+                shape = (n_pos,)
         mx.shape = shape
         my.shape = shape
         mz.shape = shape
+
 

@@ -1,13 +1,12 @@
+import os.path
 import unittest 
 
 import numpy as np
 import scipy.io as sio
 
 from bloch.bloch import bloch
-from bloch.pulse_seq_design import genReadoutGradient
-from bloch.pulse_seq_design import genPEGradient
 
-TEST_DIR = "bloch/test_data/{0}/{1}"
+TEST_DIR = "test_data"
 
 class BlochTest(unittest.TestCase):
     """
@@ -17,13 +16,17 @@ class BlochTest(unittest.TestCase):
     evaluation will be replicated here. 
     """
 
-    def test_hw4_bloch_sim_demo(self):
-        mx_demo = sio.loadmat(TEST_DIR.format("hw4", "mx_demo"))["mx"].ravel()
-        my_demo = sio.loadmat(TEST_DIR.format("hw4", "my_demo"))["my"].ravel()
-        mz_demo = sio.loadmat(TEST_DIR.format("hw4", "mz_demo"))["mz"].ravel()
+    def test_bloch_sim_demo(self):
+        """
+        Runs a simple Bloch simulator run.
+        """
+        file_name = "basic_bloch"
+        mx_demo = get_data_with_key(TEST_DIR, file_name, "mx_demo")
+        my_demo = get_data_with_key(TEST_DIR, file_name, "my_demo")
+        mz_demo = get_data_with_key(TEST_DIR, file_name, "mz_demo")
 
-        b1 = sio.loadmat(TEST_DIR.format("hw4", "b1_demo"))["b1"].ravel()
-        g = np.transpose(sio.loadmat(TEST_DIR.format("hw4", "g_demo"))["g"]).ravel()
+        b1 = get_data_with_key(TEST_DIR, file_name, "b1_demo")
+        g = get_data_with_key(TEST_DIR, file_name, "g_demo")
 
         dt = 4e-6
         t1 = 100e-3
@@ -41,13 +44,16 @@ class BlochTest(unittest.TestCase):
         self.assertTrue(np.allclose(my_demo, my));
         self.assertTrue(np.allclose(mz_demo, mz));
 
-    def test_hw4_bloch_sim_a(self):
-        mx_a = sio.loadmat(TEST_DIR.format("hw4", "mx_a"))["mx"].ravel()
-        my_b = sio.loadmat(TEST_DIR.format("hw4", "my_a"))["my"].ravel()
-        mz_c = sio.loadmat(TEST_DIR.format("hw4", "mz_a"))["mz"].ravel()
+    def test_bloch_sim_a(self):
+        """
+        Runs another simple Bloch simulator run.
+        """
+        mx_a = get_data_with_key(TEST_DIR, "basic_bloch", "mx_a")
+        my_b = get_data_with_key(TEST_DIR, "basic_bloch", "my_a")
+        mz_c = get_data_with_key(TEST_DIR, "basic_bloch", "mz_a")
 
-        b1 = sio.loadmat(TEST_DIR.format("hw4", "B1_a"))["B1"].ravel()
-        g = np.transpose(sio.loadmat(TEST_DIR.format("hw4", "G_a"))["G"]).ravel()
+        b1 = get_data_with_key(TEST_DIR, "basic_bloch", "b1_a")
+        g = get_data_with_key(TEST_DIR, "basic_bloch", "g_a")
 
         dt = 4e-6
         t1 = 30e-3
@@ -64,52 +70,61 @@ class BlochTest(unittest.TestCase):
         self.assertTrue(np.allclose(mx_a, mx));
         self.assertTrue(np.allclose(my_b, my));
         self.assertTrue(np.allclose(mz_c, mz));
+    
+    def test_ssfptransiest(self):
+        """
+        Runs an SSFP response calculation using bloch.m
+        """
+        expected_mxss = get_data_with_key(TEST_DIR, "ssfptransient", "mxss")
+        expected_myss = get_data_with_key(TEST_DIR, "ssfptransient", "myss")
+        expected_mzss = get_data_with_key(TEST_DIR, "ssfptransient", "mzss")
 
-    def test_hw5_bloch_sim_first_part(self):
-        matlab = sio.loadmat(TEST_DIR.format("hw5", "hw5_img"))
+        expected_mx = get_data_with_key(TEST_DIR, "ssfptransient", "mx")
+        expected_my = get_data_with_key(TEST_DIR, "ssfptransient", "my")
+        expected_mz = get_data_with_key(TEST_DIR, "ssfptransient", "mz")
 
-        dp = matlab["dp"]
-        mx_0 = matlab["mx"].ravel()
-        my_0 = matlab["my"].ravel()
-        mz_0 = matlab["mz"].ravel()
+        TR = .005 #Seconds
+        Trf = 0.0001 #100 us "hard" RF pulse
+        alpha = 60 #Degrees
+        gamma = 4258 #Hz/G
+        T1 = 1 #Seconds
+        T2 = .2 #Seconds
+        freq = np.arange(-200, 201) #Hz
+        N = 100
+        Tpad = (TR - Trf)/2 #Seconds
 
-        expected_mx1 = sio.loadmat(TEST_DIR.format("hw5", "mxa.mat"))["mx1"].ravel()
-        expected_my1 = sio.loadmat(TEST_DIR.format("hw5", "mya.mat"))["my1"].ravel()
-        expected_mz1 = sio.loadmat(TEST_DIR.format("hw5", "mza.mat"))["mz1"].ravel()
+        t = np.asarray([Tpad, Trf, Tpad])
+        b1 = np.concatenate((np.zeros(1), np.asarray([np.pi/180*alpha/Trf/gamma/2/np.pi]), np.zeros(1)))
 
-        expected_mx2 = np.transpose(sio.loadmat(TEST_DIR.format("hw5", "mxb.mat"))["mx1"])
-        expected_my2= np.transpose(sio.loadmat(TEST_DIR.format("hw5", "myb.mat"))["my1"])
-        expected_mz2= np.transpose(sio.loadmat(TEST_DIR.format("hw5", "mzb.mat"))["mz1"])
+        mxss, myss, mzss = bloch(b1, 0*b1, t, T1, T2, freq, 0, 1)
 
-        Nf = 64
-        Np = 32
-        Nrf = 92
-        Fov_r = 14
-        Fov_p = 7
-        g_max = 4
-        s_max = 15000
-        dt = 4e-6
-        bwpp = 1862.4
-        gamma = 4257
-        flip = 90
+        mx, my, mz = bloch(1.0j * np.max(b1)/2, 0, Trf, T1, T2, freq, 0, 0)
 
-        gx, rowin = genReadoutGradient(Nf, Fov_r, bwpp, g_max, s_max, dt)
-        gpe, petable = genPEGradient(Np, Fov_p, g_max, s_max, dt)
-        rf_90 = np.ones(Nrf) * (flip/360) / (Nrf * dt * gamma)
-        gy = np.zeros(gx.size)
-        gy[:gpe.size] = gpe
+        for _ in range(N):
+            mx, my, mz = bloch(b1, 0*b1, t, T1, T2, freq, 0, 0, mx, my, mz)
 
-        g = np.asarray([gx, gy * -petable[0]])
-        mx1, my1, mz1 = bloch(rf_90, rf_90 * 0, dt, 100, 100, 0, dp, 0, mx_0, my_0, mz_0)
-        mx2, my2, mz2 = bloch(gx * 0, g, dt, 100, 100, 0, dp, 2, mx1, my1, mz1)
+        self.assertTrue(np.allclose(expected_mxss, mxss))
+        self.assertTrue(np.allclose(expected_myss, myss))
+        self.assertTrue(np.allclose(expected_mzss, mzss))
 
-        self.assertTrue(np.allclose(expected_mx1, mx1))
-        self.assertTrue(np.allclose(expected_my1, my1))
-        self.assertTrue(np.allclose(expected_mz1, mz1))
+        self.assertTrue(np.allclose(expected_mx, mx))
+        self.assertTrue(np.allclose(expected_my, my))
+        self.assertTrue(np.allclose(expected_mz, mz))
 
-        self.assertTrue(np.allclose(expected_mx2, mx2))
-        self.assertTrue(np.allclose(expected_my2, my2))
-        self.assertTrue(np.allclose(expected_mz2, mz2))
+def get_data(directory, file_name):
+    """
+    Grabs data structure from matlab data file.
+    """
+    file_name = "{0}.npz".format(file_name)
+    data = np.load(os.path.join(directory, file_name))
+    return data
+
+def get_data_with_key(directory, file_name, key):
+    """
+    Grabs data structure from matlab data file and key.
+    """
+    data = get_data(directory, file_name)[key]
+    return np.transpose(data)
 
 if __name__ == "__main__":
     unittest.main()

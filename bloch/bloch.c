@@ -127,7 +127,7 @@ det = detmat(mat);	/* Determinant */
 adjmat(mat, imat);	/* Adjoint */
 
 for (count=0; count<9; count++)
-	*imat = *imat++ / det;		
+	*imat++ /= det;		
 }
 
 

@@ -60,7 +60,7 @@ def minimum_time_for_area(area, Gmax, Smax, dt):
     estimator = GradientMinimumTimeEstimator(area, Gmax, Smax, dt)
     return estimator.get_total_time()
 
-def minTimeGradientArea(area, Gmax, Smax, dt):
+def minimum_time_gradient(area, Gmax, Smax, dt):
     """
     Returns minimum time gradient waveform for given parameters.
     """

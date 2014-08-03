@@ -1,34 +1,30 @@
 import numpy as np
 import scipy as sp
 
+NUMBER = (int, float, complex)
+
 #Functions to handle preprocessing for bloch simulator arguments.
 
-def process_gradient_argument(gr):
+def process_gradient_argument(gr, points):
     """
     Takes in a gradient argument and returns directional gradients.
     If gradients don't exist, returns array of zeros.
     """
-    if 1 == len(gr.shape):
-        return gr, np.zeros(gr.size), np.zeros(gr.size)
-    elif 3 == gr.shape[0]:
-        return gr[0], gr[1], gr[2]
-    elif 2 == gr.shape[0]:
-        return gr[0], gr[1], np.zeros(gr.shape[1])
+    if isinstance(gr, NUMBER):
+        return gr * np.ones(points), np.zeros(points), np.zeros(points)
+    elif 1 == len(gr.shape):
+        return gr, np.zeros(points), np.zeros(points)
+
+    gradient_dimensions = gr.shape[0]
+
+    if 3 == gradient_dimensions:
+        return gr[0,:], gr[1,:], gr[2,:]
+    elif 2 == gradient_dimensions:
+        return gr[0,:], gr[1,:], np.zeros(points)
     else:
-        return gr[0], np.zeros(gr.shape[1]), np.zeros(gr.shape[1])
+        return gr[0,:], np.zeros(points), np.zeros(points)
 
-def _times_to_intervals(endtimes, intervals, n):
-    allpos = True
-    lasttime = 0.0
-
-    for val in range(n):
-        intervals[val] = endtimes[val] - lasttime
-        lasttime = endtimes[val]
-        if intervals[val] <= 0:
-            allpos = False 
-    return allpos
-
-def process_time_points(tp, rf_length):
+def process_time_points(tp, points):
     """
     THREE Cases:
 		1) Single value given -> this is the interval length for all.
@@ -37,18 +33,21 @@ def process_time_points(tp, rf_length):
 
 	For all cases, the goal is for tp to have the intervals.
     """
-    if type(tp) == type(0.0) or type(tp) == type(0):
-        return tp * np.ones(rf_length)
-    elif rf_length != tp.size:
+    if isinstance(tp, NUMBER):
+        return tp * np.ones(points)
+    elif points != tp.size:
         raise IndexError("time point length is not equal to rf length")
     else:
-        ti = np.zeros(rf_length)
-        if _times_to_intervals(tp, ti, rf_length):
+        ti = np.zeros(points)
+        if _times_to_intervals(tp, ti, points):
             tp = ti
     return tp        
 
 def process_off_resonance_arguments(df):
-    if type(df) == type(0.0) or type(df) == type(0):
+    """
+    Processes off resonance arguments.
+    """
+    if isinstance(df, NUMBER):
         return (df * np.ones(1)), 1 
     return df, df.size
 
@@ -56,14 +55,20 @@ def process_positions(dp):
     """
     Gets positions vectors if they exist. Zeros otherwise.
     """
-    if type(dp) == type(0.0) or type(dp) == type(0):
+    if isinstance(dp, NUMBER):
         return dp*np.ones(1), np.zeros(1), np.zeros(1), 1
-    if 3 == dp.shape[1]:
-        return dp[:,0], dp[:,1], dp[:,2], dp.shape[0]
-    elif 2 == dp.shape[1]:
-        return dp[:,0], dp[:,1], np.zeros(dp.shape[0]), dp.shape[0]
+    elif 1 == len(dp.shape):
+        return dp, np.zeros(dp.size), np.zeros(dp.size), dp.size
+
+    position_dimensions = dp.shape[0]
+    number_of_positions = dp.shape[1]
+
+    if 3 == position_dimensions:
+        return dp[0,:], dp[1,:], dp[2,:], number_of_positions
+    elif 2 == position_dimensions:
+        return dp[0,:], dp[1,:], np.zeros(number_of_positions), number_of_positions
     else:
-        return dp[:,0], np.zeros(dp.shape[0]), np.zeros(dp.shape[0]), dp.shape[0] 
+        return dp[0,:], np.zeros(number_of_positions), np.zeros(number_of_positions), number_of_positions 
 
 def process_magnetization(mx_0, my_0, mz_0, rf_length, freq_pos_count, mode):
     """
@@ -74,7 +79,7 @@ def process_magnetization(mx_0, my_0, mz_0, rf_length, freq_pos_count, mode):
         my_0 = my_0.ravel()
         mz_0 = mz_0.ravel()
     out_points = 1
-    if 2 == mode:
+    if (2 & mode):
         out_points = rf_length
     fn_out_points = out_points * freq_pos_count
     mx = np.zeros(fn_out_points)
@@ -114,5 +119,19 @@ def reshape_matrices(mx, my, mz, ntime, n_pos, nf):
         mx.shape = shape
         my.shape = shape
         mz.shape = shape
+
+def _times_to_intervals(endtimes, intervals, n):
+    """
+    Helper function for processing time points.
+    """
+    allpos = True
+    lasttime = 0.0
+
+    for val in range(n):
+        intervals[val] = endtimes[val] - lasttime
+        lasttime = endtimes[val]
+        if intervals[val] <= 0:
+            allpos = False 
+    return allpos
 
 

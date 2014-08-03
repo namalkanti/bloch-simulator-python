@@ -148,7 +148,7 @@ void addmats(double *mat1, double *mat2, double *matsum)
 }
 
 
-double multmats(double *mat1, double *mat2, double *matproduct)
+void multmats(double *mat1, double *mat2, double *matproduct)
 
 /* ======= Multiply two 3x3 matrices. ====== */
 /*	DO NOT MAKE THE OUTPUT THE SAME AS ONE OF THE INPUTS!! */
@@ -166,7 +166,7 @@ double multmats(double *mat1, double *mat2, double *matproduct)
 }
 
 
-double calcrotmat(double nx, double ny, double nz, double *rmat)
+void calcrotmat(double nx, double ny, double nz, double *rmat)
 
 	/* Find the rotation matrix that rotates |n| radians about
 		the vector given by nx,ny,nz				*/
@@ -278,7 +278,7 @@ return (allpos);
 
 
 
-int blochsim(double *b1real, double *b1imag, 
+void blochsim(double *b1real, double *b1imag, 
 		double *xgrad, double *ygrad, double *zgrad, double *tsteps, 
 		int ntime, double *e1, double *e2, double df, 
 		double dx, double dy, double dz, 
@@ -287,7 +287,6 @@ int blochsim(double *b1real, double *b1imag,
 	/* Go through time for one df and one dx,dy,dz.		*/
 
 {
-int count;
 int tcount;
 double gammadx;
 double gammady;
@@ -298,8 +297,6 @@ double arot[9], brot[3];	/* A and B after rotation step. */
 double decmat[9];		/* Decay matrix for each time step. */
 double decvec[3];		/* Recovery vector for each time step. */
 double rotx,roty,rotz;		/* Rotation axis coordinates. */
-double mstart[3];
-double mfinish[3];
 double imat[9], mvec[3];
 double mcurr0[3];		/* Current magnetization before rotation. */
 double mcurr1[3];		/* Current magnetization before decay. */
@@ -417,7 +414,7 @@ else if (mode==1)	/* Indicates to find steady-state magnetization */
 
 
 
-int blochsimfz(double *b1real, double *b1imag, double *xgrad, double *ygrad, double *zgrad, 
+void blochsimfz(double *b1real, double *b1imag, double *xgrad, double *ygrad, double *zgrad, 
 		double *tsteps, 
 		int ntime, double t1, double t2, double *dfreq, int nfreq,
 		double *dxpos, double *dypos, double *dzpos, int npos, 

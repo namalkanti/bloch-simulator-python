@@ -4,7 +4,12 @@ import scipy as sp
 
 import scipy.io as sio
 
-from bloch.pulse_seq_design import genReadoutGradient, genPEGradient
+from bloch.pulse_seq_design import generate_readout_gradient, generate_phase_encode_gradient
+
+from BlochTest import get_data_with_key
+
+TEST_DIR = "test_data" 
+TEST_FILE = "pulse"
 
 g_max = 4
 s_max = 15000
@@ -16,13 +21,13 @@ class PulseSeqDesignTests(unittest.TestCase):
         """
         Compares readout generation to matlab results.
         """
-        expected_gx = sio.loadmat("bloch/test_data/pulse/gx.mat")["gro"].ravel()
-        expected_rowin = sio.loadmat("bloch/test_data/pulse/rowin.mat")["rowin"].ravel()
+        expected_gx = get_data_with_key(TEST_DIR, TEST_FILE, "gx")
+        expected_rowin = get_data_with_key(TEST_DIR, TEST_FILE, "rowin")
 
         Nf = 64
         Fov_r  = 14
         bwpp = 1862.4
-        gx, rowin = genReadoutGradient(Nf, Fov_r, bwpp, g_max, s_max, dt)
+        gx, rowin = generate_readout_gradient(Nf, Fov_r, bwpp, g_max, s_max, dt)
         self.assertTrue(np.allclose(expected_gx, gx))
         self.assertTrue(np.allclose(expected_rowin, rowin))
 
@@ -31,12 +36,12 @@ class PulseSeqDesignTests(unittest.TestCase):
         """
         Compares phase generation to matlab results.
         """
-        expected_gpe = sio.loadmat("bloch/test_data/pulse/gpe.mat")["gpe"].ravel()
-        expected_petable = sio.loadmat("bloch/test_data/pulse/petable.mat")["petable"].ravel()
+        expected_gpe = get_data_with_key(TEST_DIR, TEST_FILE, "gpe")
+        expected_petable = get_data_with_key(TEST_DIR, TEST_FILE, "petable")
 
         Np = 32
         Fov_p = 7
-        gpe, petable = genPEGradient(Np, Fov_p, g_max, s_max, dt)
+        gpe, petable = generate_phase_encode_gradient(Np, Fov_p, g_max, s_max, dt)
         self.assertTrue(np.allclose(expected_gpe, gpe))
         self.assertTrue(np.allclose(expected_petable, petable))
 

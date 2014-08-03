@@ -1,7 +1,1 @@
-*.swo
-*.so
-*.o
-build
-matlab
-*.pyc
-*.swp
+__pycache__

@@ -1,3 +1,4 @@
+#define NPY_1_7_API_VERSION 0x00000007
 #include <Python.h>
 #include <numpy/arrayobject.h>
 

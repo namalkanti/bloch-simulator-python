@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 
-from bloch.minTimeGradientArea import minTimeGradientArea
+from bloch.min_time_gradient import minimum_time_gradient
 
 class GradientCalculator():
     """
@@ -56,7 +56,7 @@ class GradientCalculator():
         gro[idx3] = T * self._s_max - self._s_max * t[idx3]
 
         areaTrapz = (T + Tro) * G/2
-        gpre = minTimeGradientArea(areaTrapz/2, self._g_max, self._s_max, self._dt)
+        gpre = minimum_time_gradient(areaTrapz/2, self._g_max, self._s_max, self._dt)
 
         rowin = gpre.size + 1 + np.asarray(idx2)
 
@@ -77,41 +77,41 @@ class GradientCalculator():
 
         kmax = 1 / (For_p / Np) / 2
         area = kmax / self._gamma
-        grpe = minTimeGradientArea(area, self._g_max, self._s_max, self._dt)
+        grpe = minimum_time_gradient(area, self._g_max, self._s_max, self._dt)
 
         petable = np.arange(Np/2 - .5, -Np/2 + .5 - 1, -1) / (Np/2) 
 
         return grpe, petable
 
-def genReadoutGradient(Nf, FOVr, bwpp, Gmax, Smax, dt):
+def generate_readout_gradient(Nf, fov_r, bwpp, g_max, s_max, dt):
     """
     Input:
     Nf: The number of frequency encodes
-    FOVr: The desired field of view (cm)
+    fov_r: The desired field of view (cm)
     bwpp: The desired bandwidth per pixel (Hz/pixel)
-    Gmax: The maximum gradient (G/cm)
-    Smax: The maximum slew rate (G/cm/s)
+    g_max: The maximum gradient (G/cm)
+    s_max: The maximum slew rate (G/cm/s)
     dt: The duration of each sample (s)
 
     Output:
     gro: Gradient waveform.
     rowin: Indices corresponding to the readout portion of the gradient.
     """
-    gradient_generator = GradientCalculator(Gmax, Smax, dt)
-    return gradient_generator.generate_readout(Nf, FOVr, bwpp)
+    gradient_generator = GradientCalculator(g_max, s_max, dt)
+    return gradient_generator.generate_readout(Nf, fov_r, bwpp)
 
-def genPEGradient(Np, FOVp, Gmax, Smax, dt):
+def generate_phase_encode_gradient(Np, fov_p, g_max, s_max, dt):
     """
     Input:
     Np: The number of phase encodes
-    FOVp: The desired field of view (cm)
-    Gmax: The maximum gradient (G/cm)
-    Smax: The maximum slew rate (G/cm/s)
+    fov_p: The desired field of view (cm)
+    g_max: The maximum gradient (G/cm)
+    s_max: The maximum slew rate (G/cm/s)
     dt: The duration of each sample (s)
 
     Output:
     grpe: Gradient waveform.
     petable: Indices corresponding to the readout portion of the gradient.
     """
-    gradient_generator = GradientCalculator(Gmax, Smax, dt)
-    return gradient_generator.generate_phase_encodes(Np, FOVp)
+    gradient_generator = GradientCalculator(g_max, s_max, dt)
+    return gradient_generator.generate_phase_encodes(Np, fov_p)

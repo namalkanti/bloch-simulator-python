@@ -20,7 +20,7 @@ class GradientCalculator():
         self._dt = dt
         self._gamma = 4257
     
-    def generate_readout(self, Nf, Fov_r, bwpp):
+    def generate_readout(self, Nf, Fov_r, bwpp, negate=-1, pre_delay=0, readout_delay=1):
         """
         Input:
         Nf: The number of frequency encodes
@@ -58,13 +58,22 @@ class GradientCalculator():
         areaTrapz = (T + Tro) * G/2
         gpre = minimum_time_gradient(areaTrapz/2, self._g_max, self._s_max, self._dt)
 
-        rowin = gpre.size + 1 + np.asarray(idx2)
+        rowin = pre_delay + gpre.size + readout_delay + np.asarray(idx2)
 
-        gro = np.concatenate((-gpre, np.array([0]), gro))
+        gro = np.concatenate((np.zeros(pre_delay), negate * gpre, np.zeros(readout_delay), gro))
 
         return gro, rowin
 
-    def generate_phase_encodes(self, Np, For_p):
+    def generate_spin_echo_readout(self, Nf, Fov_r, bwpp, rf_duration, te):
+        """
+        Generates a spin echo readout gradient with specified te as time echo.
+        RF duration and te should be provided in seconds
+        """
+        pre_delay = self._dt * rf_duration 
+        readout_delay = self._dt * te
+        return self.generate_readout(Nf, Fov_r, bwpp, 1, pre_delay, readout_delay)
+
+    def generate_phase_encodes(self, Np, For_p, delay=0):
         """
         Input:
         Np: The number of phase encodes
@@ -79,9 +88,20 @@ class GradientCalculator():
         area = kmax / self._gamma
         grpe = minimum_time_gradient(area, self._g_max, self._s_max, self._dt)
 
-        petable = np.arange(Np/2 - .5, -Np/2 + .5 - 1, -1) / (Np/2) 
+        petable = delay + np.arange(Np/2 - .5, -Np/2 + .5 - 1, -1) / (Np/2) 
+
+        grpe = np.concatenate((np.zeros(delay), grpe))
+
 
         return grpe, petable
+
+    def generate_delayed_phase_encodes(self, Np, For_p, delay_time):
+        """
+        Accepts a delay time in seconds. Otherwise the same as generate_phase_encodes.
+        """
+        delay_samples = self._dt * delay_time
+        return self.generate_phase_encodes(Np, For_p, delay_samples)
+
 
 def generate_readout_gradient(Nf, fov_r, bwpp, g_max, s_max, dt):
     """

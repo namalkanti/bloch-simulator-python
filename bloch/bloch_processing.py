@@ -9,6 +9,7 @@ def process_gradient_argument(gr, points):
     """
     Takes in a gradient argument and returns directional gradients.
     If gradients don't exist, returns array of zeros.
+    If only one number is passed, it's assigned to the entire xgrad and the others are zeros.
     """
     if isinstance(gr, NUMBER):
         return gr * np.ones(points), np.zeros(points), np.zeros(points)
@@ -46,6 +47,7 @@ def process_time_points(tp, points):
 def process_off_resonance_arguments(df):
     """
     Processes off resonance arguments.
+    Returns df and size. If only one numer is passed, returns number as single array.
     """
     if isinstance(df, NUMBER):
         return (df * np.ones(1)), 1 
@@ -54,6 +56,7 @@ def process_off_resonance_arguments(df):
 def process_positions(dp):
     """
     Gets positions vectors if they exist. Zeros otherwise.
+    If only one number is passed, is set as xgrad and other directions are 0s.
     """
     if isinstance(dp, NUMBER):
         return dp*np.ones(1), np.zeros(1), np.zeros(1), 1

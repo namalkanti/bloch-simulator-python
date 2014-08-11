@@ -6,6 +6,7 @@ def hard_pulses(b1, flip_angle, seperation, length, count, dt, gamma=26752):
     """
     Generates a series of hard rf pulses with a specific flip angle seperation and length.
     
+    Input:
     b1: Amplitude of rf pulse
     flip_angle: Array of flip angle for rf pulse in radians.
     seperation: Time seperation for different rf puslses in seconds.
@@ -13,6 +14,9 @@ def hard_pulses(b1, flip_angle, seperation, length, count, dt, gamma=26752):
     count: Number of rf pulses in the sequence.
     dt: dt for each index
     gamma: Gamma value for environment default is set for hydrogen in rad/s/G.
+
+    Output:
+    rf: Hard pulse rf signal
     """
     total_units = int(length / dt)
     rf = np.zeros(total_units)
@@ -27,11 +31,16 @@ def hard_pulses(b1, flip_angle, seperation, length, count, dt, gamma=26752):
 def sinc_pulse(timebandwidth, flip_angle, duration, dt, gamma=26747.52):
     """
     Generates an rf pulse with specified tbw, duration, and dt.
+
+    Input:
     timebandwidth: Timebandwidth of desired rf pulse
     flip_angle: Flip angle of desired pulse
     duration: RF pulse duration in seconds.
     dt: dt value for rf samples
     gamma: Gamma value. Defaults to 2 * pi * 4257(hydrogren default in radians)
+
+    Output:
+    rf: Sinc pulse rf signal
     """
     samples = duration / dt
     theta = np.linspace(-timebandwidth/2, timebandwidth/2, samples+2)

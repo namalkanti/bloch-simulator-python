@@ -68,6 +68,16 @@ class GradientCalculator():
         """
         Generates a spin echo readout gradient with specified te as time echo.
         RF duration and te should be provided in seconds
+        Input:
+        Nf: The number of frequency encodes
+        Fov_r: The desired field of view (cm)
+        bwpp: The desired bandwidth per pixel (Hz/pixel)
+        rf_duration: Duration of rf pulse(delays prewinder)
+        te: Echo time for readout gradient.
+        
+        Output:
+        gro: Gradient waveform.
+        rowin: Indices corresponding to the readout portion of the gradient.
         """
         pre_delay = self._dt * rf_duration 
         readout_delay = self._dt * te
@@ -98,6 +108,14 @@ class GradientCalculator():
     def generate_delayed_phase_encodes(self, Np, For_p, delay_time):
         """
         Accepts a delay time in seconds. Otherwise the same as generate_phase_encodes.
+        Input:
+        Np: The number of phase encodes
+        Fov_p: The desired field of view (cm)
+        delay_time: Time is seconds until phase encodes start.
+
+        Output:
+        grpe: Gradient waveform.
+        petable: Indices corresponding to the readout portion of the gradient.
         """
         delay_samples = self._dt * delay_time
         return self.generate_phase_encodes(Np, For_p, delay_samples)

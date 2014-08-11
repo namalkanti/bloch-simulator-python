@@ -14,6 +14,9 @@ TEST_DIR = "test_data"
 TEST_FILE = "gradient"
 
 class GradientAreaTest(unittest.TestCase):
+    """
+    Test class for the gradient time function.
+    """
 
     def test_waveforms(self):
         """

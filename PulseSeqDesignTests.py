@@ -16,6 +16,9 @@ s_max = 15000
 dt = 4e-6
 
 class PulseSeqDesignTests(unittest.TestCase):
+    """
+    Test class for pulse seq design module.
+    """
 
     def test_readout(self):
         """

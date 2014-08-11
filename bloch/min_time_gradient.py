@@ -3,8 +3,18 @@ import scipy as sp
 import matplotlib.pyplot as plt
 
 class GradientMinimumTimeEstimator():
+    """
+    Class to generate gradient waveforms.
+    """
 
     def __init__(self, area, G, S, dt):
+        """
+        Input:
+        Area: Desired area for gradient waveform.
+        G: Maximum strenght of gradient.
+        S: Maximum slew rate for gradient.
+        dt:Sampling interval
+        """
         self._area = float(area)
         self._max_gradient = float(G)
         self._slew_rate = float(S)
@@ -12,6 +22,9 @@ class GradientMinimumTimeEstimator():
         self.calculate_waveform()
 
     def calculate_waveform(self):
+        """
+        Calculates waveform and assignes to instance variable.
+        """
         triangle_area = self._max_gradient**2 / self._slew_rate
 
         if self._area <= triangle_area:
@@ -48,9 +61,15 @@ class GradientMinimumTimeEstimator():
         self._waveform = g
 
     def plot(self):
+        """
+        Plots gradient waveform.
+        """
         plt.plot(self._time, self._waveform)
 
     def get_waveform(self):
+        """
+        Returns gradient waveform.
+        """
         return self._waveform
 
 def minimum_time_for_area(area, Gmax, Smax, dt):

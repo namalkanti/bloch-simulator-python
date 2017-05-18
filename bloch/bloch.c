@@ -38,7 +38,7 @@ void adjmat(double *mat, double *adj)
 /* ======== Adjoint of a 3x3 matrix ========= */
 
 {
-*adj++ = (mat[4]*mat[8]-mat[7]*mat[5]);	
+*adj++ = (mat[4]*mat[8]-mat[7]*mat[5]);
 *adj++ =-(mat[1]*mat[8]-mat[7]*mat[2]);
 *adj++ = (mat[1]*mat[5]-mat[4]*mat[2]);
 *adj++ =-(mat[3]*mat[8]-mat[6]*mat[5]);
@@ -127,7 +127,7 @@ det = detmat(mat);	/* Determinant */
 adjmat(mat, imat);	/* Adjoint */
 
 for (count=0; count<9; count++)
-	*imat++ /= det;		
+	*imat++ /= det;
 }
 
 
@@ -195,7 +195,7 @@ if (phi == 0.0)
 else
 	{
 	/* First define Cayley-Klein parameters 	*/
-	hp = phi/2;		
+	hp = phi/2;
 	cp = cos(hp);
 	sp = sin(hp)/phi;	/* /phi because n is unit length in defs. */
 	ar = cp;
@@ -222,7 +222,7 @@ else
 	*rmat++ = arar-aiai-brbr+bibi;
 	*rmat++ = -arai2-brbi2;
 	*rmat++ = -arbr2+aibi2;
-	*rmat++ =  arai2-brbi2; 
+	*rmat++ =  arai2-brbi2;
 	*rmat++ = arar-aiai+brbr-bibi;
 	*rmat++ = -aibr2-arbi2;
 	*rmat++ =  arbr2+aibi2;
@@ -278,10 +278,10 @@ return (allpos);
 
 
 
-void blochsim(double *b1real, double *b1imag, 
-		double *xgrad, double *ygrad, double *zgrad, double *tsteps, 
-		int ntime, double *e1, double *e2, double df, 
-		double dx, double dy, double dz, 
+void blochsim(double *b1real, double *b1imag,
+		double *xgrad, double *ygrad, double *zgrad, double *tsteps,
+		int ntime, double *e1, double *e2, double df,
+		double dx, double dy, double dz,
 		double *mx, double *my, double *mz, int mode)
 
 	/* Go through time for one df and one dx,dy,dz.		*/
@@ -343,7 +343,7 @@ for (tcount = 0; tcount < ntime; tcount++)
 	decmat[0]= *e2;
 	decmat[4]= *e2++;
 	decmat[8]= *e1++;
-	
+
 	if (mode == 1)
 		{
 		multmats(decmat,arot,amat);
@@ -380,10 +380,10 @@ for (tcount = 0; tcount < ntime; tcount++)
 		*my = mcurr0[1];
 		*mz = mcurr0[2];
 
-		mx++;	
-		my++;	
-		mz++;	
-		}	
+		mx++;
+		my++;
+		mz++;
+		}
 	}
 
 
@@ -414,10 +414,10 @@ else if (mode==1)	/* Indicates to find steady-state magnetization */
 
 
 
-void blochsimfz(double *b1real, double *b1imag, double *xgrad, double *ygrad, double *zgrad, 
-		double *tsteps, 
-		int ntime, double t1, double t2, double *dfreq, int nfreq,
-		double *dxpos, double *dypos, double *dzpos, int npos, 
+void blochsimfz(double *b1real, double *b1imag, double *xgrad, double *ygrad, double *zgrad,
+		double *tsteps,
+		int ntime, double *t1, double *t2, double *dfreq, int nfreq,
+		double *dxpos, double *dypos, double *dzpos, int npos,
 		double *mx, double *my, double *mz, int mode)
 
 
@@ -430,12 +430,16 @@ int totcount = 0;
 
 int ntout;
 
+double t1val;
+double t2val;
+
 double *e1;
 double *e2;
 double *e1ptr;
 double *e2ptr;
 double *tstepsptr;
 double *dxptr, *dyptr, *dzptr;
+double *t1ptr, *t2ptr;
 
 
 if (mode & 2)
@@ -443,65 +447,81 @@ if (mode & 2)
 else
 	ntout = 1;
 
-	/* First calculate the E1 and E2 values at each time step. */
-
-e1 = (double *) malloc(ntime * sizeof(double));
-e2 = (double *) malloc(ntime * sizeof(double));
-
-e1ptr = e1;
-e2ptr = e2;
-tstepsptr = tsteps;
-
-for (count=0; count < ntime; count++)
-	{
-	*e1ptr++ = exp(- *tstepsptr / t1);
-	*e2ptr++ = exp(- *tstepsptr++ / t2);
-	}
+// 	/* First calculate the E1 and E2 values at each time step. */
+//
+// e1 = (double *) malloc(ntime * sizeof(double));
+// e2 = (double *) malloc(ntime * sizeof(double));
+//
+// e1ptr = e1;
+// e2ptr = e2;
+// tstepsptr = tsteps;
+//
+// for (count=0; count < ntime; count++)
+// 	{
+// 	*e1ptr++ = exp(- *tstepsptr / t1);
+// 	*e2ptr++ = exp(- *tstepsptr++ / t2);
+// 	}
 
 totpoints = npos*nfreq;
 
-for (fcount=0; fcount < nfreq; fcount++)
-    {
+for (fcount=0; fcount < nfreq; fcount++) {
     dxptr = dxpos;
     dyptr = dypos;
     dzptr = dzpos;
-    for (poscount=0; poscount < npos; poscount++)
+		t1ptr = t1;
+		t2ptr = t2;
+    for (poscount=0; poscount < npos; poscount++) {
+				/* First calculate the E1 and E2 values at each time step. */
 
-	{
-	
-	if (mode == 3)	/* Steady state AND record all time points. */
+				e1 = (double *) malloc(ntime * sizeof(double));
+				e2 = (double *) malloc(ntime * sizeof(double));
 
-		{	/* First go through and find steady state, then
-				repeat as if transient starting at steady st.*/
-	
-		blochsim(b1real, b1imag, xgrad, ygrad, zgrad, tsteps, ntime, 
-			e1, e2, *dfreq, *dxptr, *dyptr, 
-			*dzptr, mx, my, mz, 1);
+				e1ptr = e1;
+				e2ptr = e2;
+				tstepsptr = tsteps;
 
-		blochsim(b1real, b1imag, xgrad, ygrad, zgrad, tsteps, ntime, 
-			e1, e2, *dfreq, *dxptr++, *dyptr++, 
-			*dzptr++, mx, my, mz, 2);
+				t1val = *t1ptr++;
+				t2val = *t2ptr++;
+				for (count=0; count < ntime; count++) {
+					*e1ptr++ = exp(- *tstepsptr / t1val);
+					*e2ptr++ = exp(- *tstepsptr++ / t2val);
+				}
+
+				if (mode == 3)	/* Steady state AND record all time points. */
+
+					{	/* First go through and find steady state, then
+							repeat as if transient starting at steady st.*/
+
+					blochsim(b1real, b1imag, xgrad, ygrad, zgrad, tsteps, ntime,
+						e1, e2, *dfreq, *dxptr, *dyptr,
+						*dzptr, mx, my, mz, 1);
+
+					blochsim(b1real, b1imag, xgrad, ygrad, zgrad, tsteps, ntime,
+						e1, e2, *dfreq, *dxptr++, *dyptr++,
+						*dzptr++, mx, my, mz, 2);
+					}
+				else
+					{
+					blochsim(b1real, b1imag, xgrad, ygrad, zgrad, tsteps, ntime,
+						e1, e2, *dfreq, *dxptr++, *dyptr++,
+						*dzptr++, mx, my, mz, mode);
+					}
+
+				mx += ntout;
+				my += ntout;
+				mz += ntout;
+
+				totcount++;
+				if ((totpoints > 40000) && ( ((10*totcount)/totpoints)> (10*(totcount-1)/totpoints) ))
+					printf("%d%% Complete.\n",(100*totcount/totpoints));
+
+				free(e1);
+				free(e2);
 		}
-	else
-		{
-		blochsim(b1real, b1imag, xgrad, ygrad, zgrad, tsteps, ntime, 
-			e1, e2, *dfreq, *dxptr++, *dyptr++, 
-			*dzptr++, mx, my, mz, mode);
-		}
-
-	mx += ntout;
-	my += ntout;
-	mz += ntout;
-	
-	totcount++;
-	if ((totpoints > 40000) && ( ((10*totcount)/totpoints)> (10*(totcount-1)/totpoints) ))
-		printf("%d%% Complete.\n",(100*totcount/totpoints));
-	}
     dfreq++;
-    }
-
-free(e1);
-free(e2);
-
 }
 
+// free(e1);
+// free(e2);
+
+}

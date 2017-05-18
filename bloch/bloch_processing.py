@@ -42,7 +42,7 @@ def process_time_points(tp, points):
         ti = np.zeros(points)
         if _times_to_intervals(tp, ti, points):
             tp = ti
-    return tp        
+    return tp
 
 def process_off_resonance_arguments(df):
     """
@@ -50,8 +50,25 @@ def process_off_resonance_arguments(df):
     Returns df and size. If only one numer is passed, returns number as single array.
     """
     if isinstance(df, NUMBER):
-        return (df * np.ones(1)), 1 
+        return (df * np.ones(1)), 1
     return df, df.size
+
+def process_relaxations(t1, t2, num_positions):
+    """
+    If only a single relaxation value is given, assume that all of the different
+    positions have the same relaxation.
+    """
+    if isinstance(t1, NUMBER):
+        t1seq = t1*np.ones(num_positions)
+    else:
+        assert len(t1) == num_positions
+        t1seq = t1
+    if isinstance(t2, NUMBER):
+        t2seq = t2*np.ones(num_positions)
+    else:
+        assert len(t2) == num_positions
+        t2seq = t2
+    return t1seq, t2seq
 
 def process_positions(dp):
     """
@@ -65,13 +82,13 @@ def process_positions(dp):
 
     position_dimensions = dp.shape[0]
     number_of_positions = dp.shape[1]
-
+    print(number_of_positions)
     if 3 == position_dimensions:
         return dp[0,:], dp[1,:], dp[2,:], number_of_positions
     elif 2 == position_dimensions:
         return dp[0,:], dp[1,:], np.zeros(number_of_positions), number_of_positions
     else:
-        return dp[0,:], np.zeros(number_of_positions), np.zeros(number_of_positions), number_of_positions 
+        return dp[0,:], np.zeros(number_of_positions), np.zeros(number_of_positions), number_of_positions
 
 def process_magnetization(mx_0, my_0, mz_0, rf_length, freq_pos_count, mode):
     """
@@ -134,7 +151,5 @@ def _times_to_intervals(endtimes, intervals, n):
         intervals[val] = endtimes[val] - lasttime
         lasttime = endtimes[val]
         if intervals[val] <= 0:
-            allpos = False 
+            allpos = False
     return allpos
-
-

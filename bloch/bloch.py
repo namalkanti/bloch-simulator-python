@@ -6,6 +6,7 @@ from bloch.bloch_simulator import bloch_c
 from bloch.bloch_processing import NUMBER
 from bloch.bloch_processing import process_gradient_argument, process_time_points, process_off_resonance_arguments
 from bloch.bloch_processing import process_positions, process_magnetization, reshape_matrices
+from bloch.bloch_processing import process_relaxations
 
 def bloch(b1, gr, tp, t1, t2, df, dp, mode, mx=None, my=None, mz=None):
     """
@@ -25,7 +26,7 @@ def bloch(b1, gr, tp, t1, t2, df, dp, mode, mx=None, my=None, mz=None):
             t1 = T1 relaxation time in seconds.
             t2 = T2 relaxation time in seconds.
             df = (1xN) Array of off-resonance frequencies (Hz)
-            dp = ((1,2,or 3)xP) Array of spatial positions (cm).  
+            dp = ((1,2,or 3)xP) Array of spatial positions (cm).
                     Width should match width of gr.
             mode= Bitmask mode:
                     Bit 0:  0-Simulate from start or M0, 1-Steady State
@@ -48,6 +49,8 @@ def bloch(b1, gr, tp, t1, t2, df, dp, mode, mx=None, my=None, mz=None):
     tp = process_time_points(tp, ntime)
     df, nf = process_off_resonance_arguments(df)
     dx, dy, dz, n_pos = process_positions(dp)
+    print('num: ' + str(n_pos))
+    t1, t2 = process_relaxations(t1, t2, n_pos)
     mx, my, mz = process_magnetization(mx, my, mz, ntime, nf*n_pos, mode)
 
     if (2 & mode):

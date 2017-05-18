@@ -12,17 +12,17 @@ static char bloch_docstring[] = "Bloch equation simulator.";
 static PyObject* bloch(PyObject *self, PyObject *args){
 
     //Arguement declarations
-    double t1, t2;
+    //double t1, t2;
     int nf, mode, n_pos;
-    PyObject *py_b1_real, *py_b1_imag, *py_grx, *py_gry, *py_grz, *py_tp, *py_df, *py_dx, *py_dy, *py_dz;
+    PyObject *py_b1_real, *py_b1_imag, *py_grx, *py_gry, *py_grz, *py_t1, *py_t2, *py_tp, *py_df, *py_dx, *py_dy, *py_dz;
     PyObject *py_mx, *py_my, *py_mz;
 
     //Bloch sim arugments declarations
-    PyObject *b1_real_arr, *b1_imag_arr, *grx_arr, *gry_arr, *grz_arr, *tp_arr, *df_arr, *dx_arr, *dy_arr, *dz_arr, *mx_arr, *my_arr, *mz_arr;
+    PyObject *b1_real_arr, *b1_imag_arr, *grx_arr, *gry_arr, *grz_arr, *tp_arr, *t1_arr, *t2_arr, *df_arr, *dx_arr, *dy_arr, *dz_arr, *mx_arr, *my_arr, *mz_arr;
     int ntime;
-    double *b1_real, *b1_imag, *grx, *gry, *grz, *tp, *df, *dx, *dy, *dz, *mx, *my, *mz;
+    double *b1_real, *b1_imag, *grx, *gry, *grz, *tp, *t1, *t2, *df, *dx, *dy, *dz, *mx, *my, *mz;
 
-    if (!PyArg_ParseTuple(args, "OOOOOOiddOiOOOiiOOO", &py_b1_real, &py_b1_imag, &py_grx, &py_gry, &py_grz, &py_tp, &ntime, &t1, &t2, 
+    if (!PyArg_ParseTuple(args, "OOOOOOiOOOiOOOiiOOO", &py_b1_real, &py_b1_imag, &py_grx, &py_gry, &py_grz, &py_tp, &ntime, &py_t1, &py_t2,
                 &py_df, &nf, &py_dx, &py_dy, &py_dz, &n_pos, &mode, &py_mx, &py_my, &py_mz)){
         return NULL;
     }
@@ -33,6 +33,8 @@ static PyObject* bloch(PyObject *self, PyObject *args){
     gry_arr = PyArray_FROM_OTF(py_gry, NPY_DOUBLE, NPY_IN_ARRAY);
     grz_arr = PyArray_FROM_OTF(py_grz, NPY_DOUBLE, NPY_IN_ARRAY);
     tp_arr = PyArray_FROM_OTF(py_tp, NPY_DOUBLE, NPY_IN_ARRAY);
+    t1_arr = PyArray_FROM_OTF(py_t1, NPY_DOUBLE, NPY_IN_ARRAY);
+    t2_arr = PyArray_FROM_OTF(py_t2, NPY_DOUBLE, NPY_IN_ARRAY);
     df_arr = PyArray_FROM_OTF(py_df, NPY_DOUBLE, NPY_IN_ARRAY);
     dx_arr = PyArray_FROM_OTF(py_dx, NPY_DOUBLE, NPY_IN_ARRAY);
     dy_arr = PyArray_FROM_OTF(py_dy, NPY_DOUBLE, NPY_IN_ARRAY);
@@ -47,6 +49,8 @@ static PyObject* bloch(PyObject *self, PyObject *args){
     gry = (double *) PyArray_DATA(gry_arr);
     grz = (double *) PyArray_DATA(grz_arr);
     tp = (double *) PyArray_DATA(tp_arr);
+    t1 = (double *) PyArray_DATA(t1_arr);
+    t2 = (double *) PyArray_DATA(t2_arr);
     df = (double *) PyArray_DATA(df_arr);
     dx = (double *) PyArray_DATA(dx_arr);
     dy = (double *) PyArray_DATA(dy_arr);
@@ -63,6 +67,8 @@ static PyObject* bloch(PyObject *self, PyObject *args){
     Py_DECREF(gry_arr);
     Py_DECREF(grz_arr);
     Py_DECREF(tp_arr);
+    Py_DECREF(t1_arr);
+    Py_DECREF(t2_arr);
     Py_DECREF(df_arr);
     Py_DECREF(dx_arr);
     Py_DECREF(dy_arr);
@@ -80,8 +86,8 @@ static PyMethodDef module_methods[] = {
 };
 
 static struct PyModuleDef bloch_module = {
-    PyModuleDef_HEAD_INIT, 
-    "bloch_simulator", 
+    PyModuleDef_HEAD_INIT,
+    "bloch_simulator",
     module_docstring,
     -1,
     module_methods
@@ -91,4 +97,3 @@ PyMODINIT_FUNC PyInit_bloch_simulator(void){
     import_array();
     return PyModule_Create(&bloch_module);
 }
-

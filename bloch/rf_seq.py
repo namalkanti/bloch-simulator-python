@@ -42,7 +42,7 @@ def sinc_pulse(timebandwidth, flip_angle, duration, dt, gamma=26747.52):
     Output:
     rf: Sinc pulse rf signal
     """
-    samples = duration / dt
+    samples = int(duration / dt)
     theta = np.linspace(-timebandwidth/2, timebandwidth/2, samples+2)
     rf = np.sinc(theta[1:-1] * sig.hann(samples))
     rf = flip_angle * (rf/np.sum(rf))

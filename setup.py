@@ -11,7 +11,7 @@ setup(
         packages = ["bloch"],
         ext_modules=[Extension("bloch.bloch_simulator", ["bloch/bloch_simulator.c"])],
         include_dirs=numpy.distutils.misc_util.get_numpy_include_dirs(),
-        install_reqs=["numpy",
+        install_requires=["numpy",
             "scipy",
             "matplotlib"],
         )

@@ -49,7 +49,6 @@ def bloch(b1, gr, tp, t1, t2, df, dp, mode, mx=None, my=None, mz=None):
     tp = process_time_points(tp, ntime)
     df, nf = process_off_resonance_arguments(df)
     dx, dy, dz, n_pos = process_positions(dp)
-    print('num: ' + str(n_pos))
     t1, t2 = process_relaxations(t1, t2, n_pos)
     mx, my, mz = process_magnetization(mx, my, mz, ntime, nf*n_pos, mode)
 

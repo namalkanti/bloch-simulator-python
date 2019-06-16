@@ -7,10 +7,10 @@ This module current uses python3. If there is demand for it, I can write a versi
 
 Dependencies
 ======================
-python 3.4
-numpy 1.8.1
-scipy 0.14.0
-matplotlib 1.3.1
+python 3.7
+numpy 1.16.4
+scipy 1.3.0
+matplotlib 3.1.0
 
 These are the version of the libraries I have tested the sim on. I make no guarentee about other versions, but I am not using very complicated calls, so there should be some flexibility.
 

@@ -82,7 +82,6 @@ def process_positions(dp):
 
     position_dimensions = dp.shape[0]
     number_of_positions = dp.shape[1]
-    print(number_of_positions)
     if 3 == position_dimensions:
         return dp[0,:], dp[1,:], dp[2,:], number_of_positions
     elif 2 == position_dimensions:

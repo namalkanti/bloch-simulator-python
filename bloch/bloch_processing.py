@@ -88,7 +88,7 @@ def process_magnetization(mx_0, my_0, mz_0, rf_length, freq_pos_count, mode):
     mx = np.zeros(fn_out_points)
     my = np.zeros(fn_out_points)
     mz = np.zeros(fn_out_points)
-    if None != mx_0 and type(mx_0) != type(0.0) and type(mx_0) != type(0) and freq_pos_count == mx_0.size and freq_pos_count == my_0.size and freq_pos_count == mz_0.size:
+    if None is not mx_0 and type(mx_0) != type(0.0) and type(mx_0) != type(0) and freq_pos_count == mx_0.size and freq_pos_count == my_0.size and freq_pos_count == mz_0.size:
         for val in range(freq_pos_count):
             mx[val * out_points] = mx_0[val]
             my[val * out_points] = my_0[val]

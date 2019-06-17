@@ -3,7 +3,7 @@ import numpy.distutils.misc_util
 
 setup(
         name = "Bloch Simulator Library",
-        version = "1.0",
+        version = "2.0",
         description = "Bloch Simulator and helper modules. Originally written by Brian Hargreaves and Mikki Lustig in Matlab.",
         author = "Niraj Amalkant",
         author_email = "namalkanti@gmail.com",

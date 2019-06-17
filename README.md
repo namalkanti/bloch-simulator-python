@@ -16,7 +16,7 @@ These are the version of the libraries I have tested the sim on. I make no guare
 
 Installation
 ======================
-Simply run "python setup.py install" to install the simulator. Then "from bloch import bloch" for the primary bloch simulator function.
+Simply run "python setup.py install" to install the simulator. Then "from bloch import bloch" for the primary bloch simulator function. Numpy needs to be installed for the setup file to run.
 
 License
 ======================
